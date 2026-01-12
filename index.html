@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JDC FSU Budget Allocation Framework Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .control-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .control-group .help-text {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .alert-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .alert-box h4 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+        
+        .alert-box p {
+            color: #856404;
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+        
+        .alert-box strong {
+            font-size: 1.2em;
+            color: #721c24;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+            margin: 20px auto 0;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .results {
+            padding: 30px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: color 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.85em;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .number {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .export-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: #218838;
+        }
+        
+        .model-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .model-a { background: #28a745; color: white; }
+        .model-b { background: #ffc107; color: #000; }
+        .model-c { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 JDC FSU Budget Allocation Framework</h1>
+            <p>Transparent, Need-Based Resource Distribution Tool</p>
+        </div>
+        
+        <div class="controls">
+            <h2 style="margin-bottom: 20px; color: #495057;">Budget Parameters</h2>
+            
+            <div class="control-grid">
+                <div class="control-group">
+                    <label>Total Budget (USD)</label>
+                    <input type="number" id="totalBudget" value="45000000" step="1000000">
+                    <div class="help-text">$45-55M typical range</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Layer 1: JDC Admin (%)</label>
+                    <input type="number" id="layer1Pct" value="20" step="1" min="0" max="100">
+                    <div class="help-text">Default: 20%</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Layer 2: Network Infrastructure (%)</label>
+                    <input type="number" id="layer2Pct" value="20" step="1" min="0" max="100">
+                    <div class="help-text">Default: 20%</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Layer 3: Community Allocations (%)</label>
+                    <input type="number" id="layer3Pct" value="60" step="1" min="0" max="100">
+                    <div class="help-text">Default: 60%</div>
+                </div>
+            </div>
+            
+            <div class="control-grid">
+                <div class="control-group">
+                    <label>Bucket 1: Safety-Net (% of Layer 3)</label>
+                    <input type="number" id="bucket1Pct" value="30" step="1" min="0" max="100">
+                    <div class="help-text">Basic needs-based allocation</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Bucket 2: Community & Prevention (% of Layer 3)</label>
+                    <input type="number" id="bucket2Pct" value="50" step="1" min="0" max="100">
+                    <div class="help-text">Pop × SPCA × Cost Index</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Bucket 3: Strategic Fund (% of Layer 3)</label>
+                    <input type="number" id="bucket3Pct" value="20" step="1" min="0" max="100">
+                    <div class="help-text">Competitive/application-based</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Indirect Cost Cap (%)</label>
+                    <input type="number" id="indirectCapPct" value="15" step="1" min="0" max="100">
+                    <div class="help-text">% of total budget (10-18% typical)</div>
+                </div>
+            </div>
+            
+            <div class="alert-box" id="targetLevelAlert" style="display: none;">
+                <h4>📊 Bucket 1: Safety-Net Calculation</h4>
+                <p><strong>Baseline:</strong> $4,289,840 (250% subsistence + 20% vulnerable)</p>
+                <p><strong>Your Budget:</strong> $<span id="bucket1Amount">0</span></p>
+                <p><strong>Scaling Factor:</strong> <span id="scalingFactor">1.00</span>×</p>
+                <p><strong>Implied Target:</strong> <strong id="impliedTargetPct">250%</strong> of subsistence</p>
+            </div>
+            
+            <div class="alert-box" id="bucket2Alert" style="display: none; background: #d1ecf1; border-color: #0c5460;">
+                <h4 style="color: #0c5460;">📊 Bucket 2: Community & Prevention Calculation</h4>
+                <p style="color: #0c5460;"><strong>Total Jewish Population:</strong> <span id="totalJewishPop">0</span></p>
+                <p style="color: #0c5460;"><strong>Bucket 2 Budget:</strong> $<span id="bucket2Amount">0</span></p>
+                <p style="color: #0c5460;"><strong>Calculated SPCA:</strong> $<span id="calculatedSPCA">0</span> per person annually</p>
+                <p style="color: #0c5460; margin-top: 10px;">Formula: SPCA = Bucket 2 Total ÷ Total Population<br>Then adjusted by City Cost Index per location</p>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateAllocations()">🔄 Calculate Allocations</button>
+        </div>
+        
+        <div class="results" id="results" style="display: none;">
+            <h2 style="margin-bottom: 20px; color: #495057;">Allocation Results</h2>
+            
+            <div class="summary-cards" id="summaryCards"></div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+                <button class="tab" onclick="showTab('bucket1')">🛡️ Bucket 1: Safety-Net</button>
+                <button class="tab" onclick="showTab('bucket2')">🏘️ Bucket 2: Community</button>
+                <button class="tab" onclick="showTab('comparison')">📈 Per-Hesed Comparison</button>
+            </div>
+            
+            <div id="overview" class="tab-content active">
+                <h3 style="margin-bottom: 15px;">Layer Distribution</h3>
+                <table id="layerTable"></table>
+                
+                <h3 style="margin: 30px 0 15px;">Bucket Distribution (Layer 3)</h3>
+                <table id="bucketTable"></table>
+            </div>
+            
+            <div id="bucket1" class="tab-content">
+                <h3 style="margin-bottom: 15px;">Bucket 1: Safety-Net Allocations by Hesed</h3>
+                <p style="margin-bottom: 15px; color: #6c757d;">Based on vulnerability and pensioner support needs, scaled to budget</p>
+                <table id="bucket1Table"></table>
+            </div>
+            
+            <div id="bucket2" class="tab-content">
+                <h3 style="margin-bottom: 15px;">Bucket 2: Community & Prevention Allocations by Hesed</h3>
+                <p style="margin-bottom: 15px; color: #6c757d;">Formula: Jewish Pop × SPCA × City Cost Index</p>
+                <table id="bucket2Table"></table>
+            </div>
+            
+            <div id="comparison" class="tab-content">
+                <h3 style="margin-bottom: 15px;">Current vs. Proposed Budget Comparison (Per Hesed)</h3>
+                <table id="comparisonTable"></table>
+            </div>
+            
+            <div class="export-section">
+                <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+                <button class="export-btn" onclick="printReport()">🖨️ Print Report</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Bucket 1 data
+        const bucket1NeedData = [
+{"country": "Armenia", "region": "Armenia", "city": "Yerevan", "total_usd": 95931.36},
+{"country": "Azerbaijan", "region": "Azerbaijan", "city": "Baku", "total_usd": 115659.41},
+{"country": "Belarus", "region": "Belarus", "city": "Bobruisk", "total_usd": 14402.46},
+{"country": "Belarus", "region": "Belarus", "city": "Gomel", "total_usd": 21146.52},
+{"country": "Belarus", "region": "Belarus", "city": "Minsk", "total_usd": 48343.38},
+{"country": "Belarus", "region": "Belarus", "city": "Vitebsk", "total_usd": 17177.68},
+{"country": "Georgia", "region": "Georgia", "city": "Kutaisi", "total_usd": 30862.00},
+{"country": "Georgia", "region": "Georgia", "city": "Tbilisi", "total_usd": 75389.03},
+{"country": "Kazakhstan", "region": "Kazakhstan", "city": "Almaty", "total_usd": 70747.90},
+{"country": "Kirgizstan", "region": "Kirgizstan", "city": "Bishkek", "total_usd": 78144.28},
+{"country": "Moldova", "region": "Moldova", "city": "Kishinev", "total_usd": 203827.64},
+{"country": "Moldova", "region": "Moldova", "city": "Tiraspol", "total_usd": 203332.77},
+{"country": "Russia", "region": "Central Russia", "city": "Bryansk", "total_usd": 65156.43},
+{"country": "Russia", "region": "Central Russia", "city": "Kaliningrad", "total_usd": 37649.35},
+{"country": "Russia", "region": "Central Russia", "city": "Nizhni Novgorod", "total_usd": 34584.14},
+{"country": "Russia", "region": "Central Russia", "city": "Oryol", "total_usd": 27782.19},
+{"country": "Russia", "region": "Central Russia", "city": "Smolensk", "total_usd": 23194.40},
+{"country": "Russia", "region": "Central Russia", "city": "Tula", "total_usd": 26838.03},
+{"country": "Russia", "region": "Central Russia", "city": "Voronezh", "total_usd": 54616.10},
+{"country": "Russia", "region": "Central Russia", "city": "Yaroslavl", "total_usd": 19669.39},
+{"country": "Russia", "region": "Crimea", "city": "Sevastopol", "total_usd": 49152.57},
+{"country": "Russia", "region": "Crimea", "city": "Simferopol", "total_usd": 100438.91},
+{"country": "Russia", "region": "Donetsk/Lugansk", "city": "Donetsk (RU)", "total_usd": 168653.37},
+{"country": "Russia", "region": "Donetsk/Lugansk", "city": "Lugansk (RU)", "total_usd": 112975.89},
+{"country": "Russia", "region": "Moscow", "city": "Moscow", "total_usd": 448645.72},
+{"country": "Russia", "region": "Northern Caucasus", "city": "Krasnodar", "total_usd": 37169.45},
+{"country": "Russia", "region": "Northern Caucasus", "city": "Pyatigorsk", "total_usd": 116484.18},
+{"country": "Russia", "region": "Northern Caucasus", "city": "Rostov-on-Don", "total_usd": 62373.03},
+{"country": "Russia", "region": "Northern Caucasus", "city": "Sukhum", "total_usd": 8150.29},
+{"country": "Russia", "region": "Northern Caucasus", "city": "Taganrog", "total_usd": 35594.39},
+{"country": "Russia", "region": "Northern Caucasus", "city": "Volgograd", "total_usd": 30278.67},
+{"country": "Russia", "region": "Northwest Russia", "city": "St.Petersburg", "total_usd": 388420.22},
+{"country": "Russia", "region": "Siberia & Far East", "city": "Khabarovsk", "total_usd": 76662.92},
+{"country": "Russia", "region": "Siberia & Far East", "city": "Novosibirsk", "total_usd": 96824.67},
+{"country": "Russia", "region": "Urals", "city": "Chelyabinsk", "total_usd": 72851.64},
+{"country": "Russia", "region": "Urals", "city": "Izhevsk", "total_usd": 15271.59},
+{"country": "Russia", "region": "Urals", "city": "Kazan", "total_usd": 40766.86},
+{"country": "Russia", "region": "Urals", "city": "Samara", "total_usd": 103027.40},
+{"country": "Russia", "region": "Urals", "city": "Saratov", "total_usd": 44382.10},
+{"country": "Russia", "region": "Urals", "city": "Yekaterinburg", "total_usd": 85915.95},
+{"country": "Tajikistan", "region": "Tajikistan", "city": "Dushanbe", "total_usd": 88225.91},
+{"country": "Ukraine", "region": "Central Ukraine", "city": "Cherkassy", "total_usd": 19958.62},
+{"country": "Ukraine", "region": "Central Ukraine", "city": "Chernigov", "total_usd": 21303.37},
+{"country": "Ukraine", "region": "Central Ukraine", "city": "Kiev", "total_usd": 129841.08},
+{"country": "Ukraine", "region": "Central Ukraine", "city": "Vinnitsa", "total_usd": 46972.83},
+{"country": "Ukraine", "region": "Eastern Ukraine", "city": "Dnepro", "total_usd": 112045.30},
+{"country": "Ukraine", "region": "Eastern Ukraine", "city": "Kramatorsk", "total_usd": 4566.52},
+{"country": "Ukraine", "region": "Eastern Ukraine", "city": "Krivoi Rog", "total_usd": 15109.12},
+{"country": "Ukraine", "region": "Eastern Ukraine", "city": "Zaporozhie", "total_usd": 20372.40},
+{"country": "Ukraine", "region": "Northeastern Ukraine", "city": "Kharkov", "total_usd": 83056.42},
+{"country": "Ukraine", "region": "Northeastern Ukraine", "city": "Poltava", "total_usd": 23355.29},
+{"country": "Ukraine", "region": "Northeastern Ukraine", "city": "Sumy", "total_usd": 14883.33},
+{"country": "Ukraine", "region": "Southern Ukraine", "city": "Kherson", "total_usd": 12153.79},
+{"country": "Ukraine", "region": "Southern Ukraine", "city": "Nikolaev", "total_usd": 14714.73},
+{"country": "Ukraine", "region": "Southern Ukraine", "city": "Odessa", "total_usd": 151236.91},
+{"country": "Ukraine", "region": "Western Ukraine", "city": "Khmelnitski", "total_usd": 30067.48},
+{"country": "Ukraine", "region": "Western Ukraine", "city": "Lvov", "total_usd": 56635.18},
+{"country": "Uzbekistan", "region": "Uzbekistan", "city": "Tashkent", "total_usd": 86847.94}
+        ];
+        
+        const BASELINE_BUCKET1_TOTAL = 4289840.47;
+        
+        // Community data with Hesed names
+        const communityData = [
+            {region: "Armenia", city: "Yerevan", hesedName: "Orot Hesed - Yerevan", type: "C", jewishPop: 100},
+            {region: "Azerbaijan", city: "Baku", hesedName: "Hesed Gershon - Baku", type: "B", jewishPop: 2000},
+            {region: "Belarus", city: "Bobruisk", hesedName: "Hesed Shmuel - Bobruisk", type: "B", jewishPop: 4400},
+            {region: "Belarus", city: "Gomel", hesedName: "Hesed Batya - Gomel", type: "B", jewishPop: 6800},
+            {region: "Belarus", city: "Minsk", hesedName: "Hesed Rachamim - Minsk", type: "B", jewishPop: 17000},
+            {region: "Belarus", city: "Vitebsk", hesedName: "Hasdei David - Vitebsk", type: "B", jewishPop: 5800},
+            {region: "Central Russia", city: "Bryansk", hesedName: "Hesed Tikvah - Bryansk", type: "B", jewishPop: 5000},
+            {region: "Central Russia", city: "Kaliningrad", hesedName: "Hesed Kaliningrad", type: "C", jewishPop: 3000},
+            {region: "Central Russia", city: "Nizhni Novgorod", hesedName: "Hesed Sara - N.Novgorod", type: "B", jewishPop: 15000},
+            {region: "Central Russia", city: "Oryol", hesedName: "Community&Charity Center 'Nesher' - Orel", type: "C", jewishPop: 1500},
+            {region: "Central Russia", city: "Smolensk", hesedName: "RENKASO", type: "B", jewishPop: 2500},
+            {region: "Central Russia", city: "Tula", hesedName: "Hasdei Neshama -Tula", type: "B", jewishPop: 2000},
+            {region: "Central Russia", city: "Voronezh", hesedName: "Hesed Nehama - Voronezh", type: "B", jewishPop: 5000},
+            {region: "Central Russia", city: "Yaroslavl", hesedName: "Hesed Rachel - Yaroslavl", type: "C", jewishPop: 1500},
+            {region: "Central Ukraine", city: "Cherkassy", hesedName: "Hesed Dorot-Cherkassy", type: "C", jewishPop: 3500},
+            {region: "Central Ukraine", city: "Chernigov", hesedName: "Hasdei Ester-Chernigov", type: "B", jewishPop: 3000},
+            {region: "Central Ukraine", city: "Kiev", hesedName: "International Charity Fund \"Jewish Hesed \"Bnei Azriel\"", type: "B", jewishPop: 35000},
+            {region: "Central Ukraine", city: "Vinnitsa", hesedName: "Hesed Emuna-Vinnitsa", type: "B", jewishPop: 6500},
+            {region: "Crimea", city: "Sevastopol", hesedName: "Hesed Shahar - Sevastopol", type: "B", jewishPop: 1700},
+            {region: "Crimea", city: "Simferopol", hesedName: "Hesed Shimon - Simferopol", type: "B", jewishPop: 4000},
+            {region: "Donetsk/Lugansk", city: "Donetsk (RU)", hesedName: "Regional сharitable fund \"Hesed Tsdaka R\"", type: "C", jewishPop: 5500},
+            {region: "Donetsk/Lugansk", city: "Lugansk (RU)", hesedName: "Charity organization \"Regional charitable foundation \"Hesed Ner Ru\"", type: "C", jewishPop: 4700},
+            {region: "Eastern Ukraine", city: "Dnepro", hesedName: "Hesed Menachem - Dnepropetrovsk", type: "B", jewishPop: 21000},
+            {region: "Eastern Ukraine", city: "Kramatorsk", hesedName: "Hesed Moria - Kramatorsk", type: "C", jewishPop: 1700},
+            {region: "Eastern Ukraine", city: "Krivoi Rog", hesedName: "Hesed Hana-Krivoi Rog", type: "B", jewishPop: 3500},
+            {region: "Eastern Ukraine", city: "Zaporozhie", hesedName: "Hesed Michael-Zaporozhie", type: "B", jewishPop: 7000},
+            {region: "Georgia", city: "Kutaisi", hesedName: "Charitable Fund Of Jewish Of Kutaisi 'Hesed Abuli'", type: "B", jewishPop: 3150},
+            {region: "Georgia", city: "Tbilisi", hesedName: "Charitable Center Of Jewish Of Georgia 'Hesed Eliahu'", type: "B", jewishPop: 5850},
+            {region: "Kazakhstan", city: "Almaty", hesedName: "Hesed Polina - Almaty", type: "B", jewishPop: 23000},
+            {region: "Kirgizstan", city: "Bishkek", hesedName: "Hesed Tikva - Bishkek", type: "B", jewishPop: 1000},
+            {region: "Moldova", city: "Kishinev", hesedName: "Kishinev Welfare Center Hesed Yehuda", type: "B", jewishPop: 9000},
+            {region: "Moldova", city: "Tiraspol", hesedName: "Tiraspol Jewish Community Welfare Cultural Center 'Hesed'", type: "C", jewishPop: 1500},
+            {region: "Moscow", city: "Moscow", hesedName: "Department of International Cultural organization Chamah", type: "B", jewishPop: 75000},
+            {region: "Moscow", city: "Moscow", hesedName: "Charitable Fund 'Nadezda'", type: "B", jewishPop: 0},
+            {region: "Moscow", city: "Moscow", hesedName: "Yad Ezra Fund", type: "B", jewishPop: 75000},
+            {region: "Moscow", city: "Moscow", hesedName: "Regional public fund of jewish culture Shaarey Tzedek", type: "B", jewishPop: 150000},
+            {region: "Northeastern Ukraine", city: "Kharkov", hesedName: "Kharkiv Regional Charity Jewish Fund \"Hesed-Shaare Tikva'", type: "B", jewishPop: 21000},
+            {region: "Northeastern Ukraine", city: "Poltava", hesedName: "Poltava Welfare and Community Center 'Hesed-Nefesh'", type: "B", jewishPop: 3500},
+            {region: "Northeastern Ukraine", city: "Sumy", hesedName: "Sumy Welfare and Community Center 'Hesed-Haim'", type: "B", jewishPop: 2500},
+            {region: "Northern Caucasus", city: "Krasnodar", hesedName: "Hesed Tikva - Krasnodar", type: "B", jewishPop: 3700},
+            {region: "Northern Caucasus", city: "Pyatigorsk", hesedName: "Jewish Charitable Fund Hesed \"Osher\"", type: "B", jewishPop: 4000},
+            {region: "Northern Caucasus", city: "Rostov-on-Don", hesedName: "Charity Fund  \"Family Center \"Atsmaut\"", type: "B", jewishPop: 8000},
+            {region: "Northern Caucasus", city: "Sukhum", hesedName: "Jewish Cultural Welfare Community \"Shalom\" - Sukhum", type: "C", jewishPop: 150},
+            {region: "Northern Caucasus", city: "Taganrog", hesedName: "Hesed Tagan-Shofar - Taganrog", type: "B", jewishPop: 900},
+            {region: "Northern Caucasus", city: "Volgograd", hesedName: "Hesed Haim - Volgograd", type: "B", jewishPop: 3000},
+            {region: "Northwest Russia", city: "St.Petersburg", hesedName: "St.Petersburg Jewish Welfare Organization of Disabled - EVA", type: "B", jewishPop: 10000},
+            {region: "Northwest Russia", city: "St.Petersburg", hesedName: "St. Petersburg (Hesed Avraham)", type: "A", jewishPop: 80000},
+            {region: "Northwest Russia", city: "St.Petersburg", hesedName: "St.Petersburg Society Fund \"EVA - center\"", type: "C", jewishPop: 1700},
+            {region: "Siberia & Far East", city: "Khabarovsk", hesedName: "Jewish Cultural Charitable Foundation \"Gesher\"", type: "B", jewishPop: 3500},
+            {region: "Siberia & Far East", city: "Novosibirsk", hesedName: "Jewish cultural welfare foundation 'Atikva'", type: "B", jewishPop: 9000},
+            {region: "Southern Ukraine", city: "Kherson", hesedName: "Kherson Regional Jewish Welfare and Community Center 'Hesed Shmuel'", type: "C", jewishPop: 2200},
+            {region: "Southern Ukraine", city: "Nikolaev", hesedName: "Hesed Reim - Nikolaev", type: "C", jewishPop: 2100},
+            {region: "Southern Ukraine", city: "Odessa", hesedName: "Hesed Shaarey Tsion - Odessa", type: "B", jewishPop: 23000},
+            {region: "Tajikistan", city: "Dushanbe", hesedName: "Hesed Tadjikistan", type: "C", jewishPop: 150},
+            {region: "Urals", city: "Chelyabinsk", hesedName: "Cheliabinsk City Charitable Voluntary Fund 'Jewish Charitable Center 'Hesed Nechama'", type: "B", jewishPop: 8000},
+            {region: "Urals", city: "Izhevsk", hesedName: "Jewish Charitable Fund 'Hesed Ariel'", type: "B", jewishPop: 2000},
+            {region: "Urals", city: "Kazan", hesedName: "Hesed Moshe - Kazan", type: "A", jewishPop: 4500},
+            {region: "Urals", city: "Samara", hesedName: "Hesed Esther - Samara", type: "B", jewishPop: 9000},
+            {region: "Urals", city: "Saratov", hesedName: "Hasdei Yerushalaim-Saratov", type: "B", jewishPop: 3000},
+            {region: "Urals", city: "Yekaterinburg", hesedName: "Yekaterinburg Jewish Community Center 'Menora'", type: "B", jewishPop: 10000},
+            {region: "Uzbekistan", city: "Tashkent", hesedName: "AJJDC -Tashkent Office", type: "C", jewishPop: 2000},
+            {region: "Western Ukraine", city: "Khmelnitski", hesedName: "Hesed Besht - Khmelnitsky", type: "B", jewishPop: 5500},
+            {region: "Western Ukraine", city: "Lvov", hesedName: "Hesed Ariye - Lvov", type: "B", jewishPop: 9000}
+        ];
+        
+        const cityCostIndex = [
+            {city: "Yerevan", cityCostIndex: 1.1665}, {city: "Baku", cityCostIndex: 0.9793},
+            {city: "Bobruisk", cityCostIndex: 0.9466}, {city: "Gomel", cityCostIndex: 1.0412},
+            {city: "Minsk", cityCostIndex: 1.1359}, {city: "Vitebsk", cityCostIndex: 0.9466},
+            {city: "Bryansk", cityCostIndex: 1.8325}, {city: "Kaliningrad", cityCostIndex: 2.0158},
+            {city: "Nizhni Novgorod", cityCostIndex: 2.0158}, {city: "Oryol", cityCostIndex: 1.6493},
+            {city: "Smolensk", cityCostIndex: 1.8325}, {city: "Tula", cityCostIndex: 1.8325},
+            {city: "Voronezh", cityCostIndex: 2.0158}, {city: "Yaroslavl", cityCostIndex: 1.8325},
+            {city: "Cherkassy", cityCostIndex: 0.5887}, {city: "Chernigov", cityCostIndex: 0.5887},
+            {city: "Kiev", cityCostIndex: 0.7064}, {city: "Vinnitsa", cityCostIndex: 0.5887},
+            {city: "Sevastopol", cityCostIndex: 2.0158}, {city: "Simferopol", cityCostIndex: 1.8325},
+            {city: "Donetsk (RU)", cityCostIndex: 1.6493}, {city: "Lugansk (RU)", cityCostIndex: 1.6493},
+            {city: "Dnepro", cityCostIndex: 0.6475}, {city: "Kramatorsk", cityCostIndex: 0.5298},
+            {city: "Krivoi Rog", cityCostIndex: 0.6475}, {city: "Zaporozhie", cityCostIndex: 0.6475},
+            {city: "Kutaisi", cityCostIndex: 1.0665}, {city: "Tbilisi", cityCostIndex: 1.2798},
+            {city: "Almaty", cityCostIndex: 1.7434}, {city: "Bishkek", cityCostIndex: 0.3616},
+            {city: "Kishinev", cityCostIndex: 1.0696}, {city: "Tiraspol", cityCostIndex: 0.8022},
+            {city: "Moscow", cityCostIndex: 2.199}, {city: "Krasnodar", cityCostIndex: 2.0158},
+            {city: "Pyatigorsk", cityCostIndex: 1.8325}, {city: "Rostov-on-Don", cityCostIndex: 2.0158},
+            {city: "Sukhum", cityCostIndex: 1.6493}, {city: "Taganrog", cityCostIndex: 1.8325},
+            {city: "Volgograd", cityCostIndex: 1.8325}, {city: "St.Petersburg", cityCostIndex: 2.199},
+            {city: "Khabarovsk", cityCostIndex: 2.0158}, {city: "Novosibirsk", cityCostIndex: 2.0158},
+            {city: "Chelyabinsk", cityCostIndex: 2.0158}, {city: "Izhevsk", cityCostIndex: 1.8325},
+            {city: "Kazan", cityCostIndex: 2.0158}, {city: "Samara", cityCostIndex: 2.0158},
+            {city: "Saratov", cityCostIndex: 1.8325}, {city: "Yekaterinburg", cityCostIndex: 2.0158},
+            {city: "Tashkent", cityCostIndex: 0.4991}, {city: "Kharkov", cityCostIndex: 0.6475},
+            {city: "Poltava", cityCostIndex: 0.5887}, {city: "Sumy", cityCostIndex: 0.5887},
+            {city: "Kherson", cityCostIndex: 0.5887}, {city: "Nikolaev", cityCostIndex: 0.5887},
+            {city: "Odessa", cityCostIndex: 0.6475}, {city: "Dushanbe", cityCostIndex: 0.2399},
+            {city: "Khmelnitski", cityCostIndex: 0.5887}, {city: "Lvov", cityCostIndex: 0.6475}
+        ];
+        
+        // Current budget per Hesed
+        const currentBudgetPerHesed = {
+            "Orot Hesed - Yerevan": 85687,
+            "Hesed Gershon - Baku": 326760,
+            "Hesed Shmuel - Bobruisk": 86007,
+            "Hesed Batya - Gomel": 98893.62,
+            "Hesed Rachamim - Minsk": 377215.45,
+            "Hasdei David - Vitebsk": 77992.93,
+            "Hesed Tikvah - Bryansk": 282557,
+            "Hesed Kaliningrad": 72336,
+            "Hesed Sara - N.Novgorod": 116615,
+            "Community&Charity Center 'Nesher' - Orel": 90549,
+            "RENKASO": 95160,
+            "Hasdei Neshama -Tula": 71992,
+            "Hesed Nehama - Voronezh": 142501,
+            "Hesed Rachel - Yaroslavl": 80690,
+            "Hesed Dorot-Cherkassy": 517103.74,
+            "Hasdei Ester-Chernigov": 446018.71,
+            "International Charity Fund \"Jewish Hesed \"Bnei Azriel\"": 3346271.15,
+            "Hesed Emuna-Vinnitsa": 1061348.19,
+            "Hesed Shahar - Sevastopol": 101019,
+            "Hesed Shimon - Simferopol": 247830,
+            "Regional сharitable fund \"Hesed Tsdaka R\"": 310583,
+            "Charity organization \"Regional charitable foundation \"Hesed Ner Ru\"": 296424.62,
+            "Hesed Menachem - Dnepropetrovsk": 1903410.17,
+            "Hesed Moria - Kramatorsk": 129459.72,
+            "Hesed Hana-Krivoi Rog": 488566.91,
+            "Hesed Michael-Zaporozhie": 524883.72,
+            "Charitable Fund Of Jewish Of Kutaisi 'Hesed Abuli'": 410300,
+            "Charitable Center Of Jewish Of Georgia 'Hesed Eliahu'": 782090,
+            "Hesed Polina - Almaty": 417026,
+            "Hesed Tikva - Bishkek": 141913,
+            "Kishinev Welfare Center Hesed Yehuda": 1085207,
+            "Tiraspol Jewish Community Welfare Cultural Center 'Hesed'": 627773,
+            "Department of International Cultural organization Chamah": 818288.5,
+            "Charitable Fund 'Nadezda'": 106867,
+            "Yad Ezra Fund": 403188,
+            "Regional public fund of jewish culture Shaarey Tzedek": 393420,
+            "Kharkiv Regional Charity Jewish Fund \"Hesed-Shaare Tikva'": 1903469.5,
+            "Poltava Welfare and Community Center 'Hesed-Nefesh'": 790166.97,
+            "Sumy Welfare and Community Center 'Hesed-Haim'": 447243.27,
+            "Hesed Tikva - Krasnodar": 213184.8,
+            "Jewish Charitable Fund Hesed \"Osher\"": 385093.77,
+            "Charity Fund  \"Family Center \"Atsmaut\"": 300452.27,
+            "Jewish Cultural Welfare Community \"Shalom\" - Sukhum": 19326,
+            "Hesed Tagan-Shofar - Taganrog": 221670,
+            "Hesed Haim - Volgograd": 151070.01,
+            "St.Petersburg Jewish Welfare Organization of Disabled - EVA": 403280,
+            "St. Petersburg (Hesed Avraham)": 420176,
+            "St.Petersburg Society Fund \"EVA - center\"": 91368,
+            "Jewish Cultural Charitable Foundation \"Gesher\"": 108800,
+            "Jewish cultural welfare foundation 'Atikva'": 232830,
+            "Kherson Regional Jewish Welfare and Community Center 'Hesed Shmuel'": 298496.55,
+            "Hesed Reim - Nikolaev": 412884.02,
+            "Hesed Shaarey Tsion - Odessa": 3305502.56,
+            "Hesed Tadjikistan": 19500,
+            "Cheliabinsk City Charitable Voluntary Fund 'Jewish Charitable Center 'Hesed Nechama'": 165103,
+            "Jewish Charitable Fund 'Hesed Ariel'": 83253,
+            "Hesed Moshe - Kazan": 182733,
+            "Hesed Esther - Samara": 331987,
+            "Hasdei Yerushalaim-Saratov": 139859,
+            "Yekaterinburg Jewish Community Center 'Menora'": 349690,
+            "AJJDC -Tashkent Office": 247741,
+            "Hesed Besht - Khmelnitsky": 835460.72,
+            "Hesed Ariye - Lvov": 1746834.78
+        };
+        
+        // Current indirect costs per Hesed
+        const currentIndirectCosts = {
+            "AJJDC -Tashkent Office": 9574.0,
+            "Charitable Center Of Jewish Of Georgia 'Hesed Eliahu'": 118802.76,
+            "Charitable Fund 'Nadezda'": 3909.0,
+            "Charitable Fund Of Jewish Of Kutaisi 'Hesed Abuli'": 47801.0,
+            "Charity Fund  \"Family Center \"Atsmaut\"": 23149.0,
+            "Charity organization \"Regional charitable foundation \"Hesed Ner Ru\"": 31156.0,
+            "Cheliabinsk City Charitable Voluntary Fund 'Jewish Charitable Center 'Hesed Nechama'": 6028.0,
+            "Community&Charity Center 'Nesher' - Orel": 1684.0,
+            "Department of International Cultural organization Chamah": 112524.0,
+            "Hasdei David - Vitebsk": 4214.0,
+            "Hasdei Ester-Chernigov": 27079.0,
+            "Hasdei Neshama -Tula": 1461.0,
+            "Hasdei Yerushalaim-Saratov": 3879.0,
+            "Hesed Ariye - Lvov": 81321.0,
+            "Hesed Batya - Gomel": 1386.0,
+            "Hesed Besht - Khmelnitsky": 62964.0,
+            "Hesed Dorot-Cherkassy": 39959.0,
+            "Hesed Emuna-Vinnitsa": 52024.0,
+            "Hesed Esther - Samara": 13335.0,
+            "Hesed Gershon - Baku": 115696.0,
+            "Hesed Haim - Volgograd": 17948.0,
+            "Hesed Hana-Krivoi Rog": 85991.0,
+            "Hesed Kaliningrad": 2427.0,
+            "Hesed Menachem - Dnepropetrovsk": 78396.0,
+            "Hesed Michael-Zaporozhie": 54635.0,
+            "Hesed Moria - Kramatorsk": 12936.0,
+            "Hesed Moshe - Kazan": 6018.0,
+            "Hesed Nehama - Voronezh": 4522.0,
+            "Hesed Polina - Almaty": 47773.0,
+            "Hesed Rachamim - Minsk": 9547.69,
+            "Hesed Rachel - Yaroslavl": 2078.0,
+            "Hesed Reim - Nikolaev": 29314.0,
+            "Hesed Sara - N.Novgorod": 3405.0,
+            "Hesed Shaarey Tsion - Odessa": 88630.0,
+            "Hesed Shahar - Sevastopol": 4447.0,
+            "Hesed Shimon - Simferopol": 5772.0,
+            "Hesed Shmuel - Bobruisk": 1175.0,
+            "Hesed Tadjikistan": 3779.0,
+            "Hesed Tagan-Shofar - Taganrog": 17600.0,
+            "Hesed Tikva - Bishkek": 23299.0,
+            "Hesed Tikva - Krasnodar": 20300.0,
+            "Hesed Tikvah - Bryansk": 8624.0,
+            "International Charity Fund \"Jewish Hesed \"Bnei Azriel\"": 210142.0,
+            "Jewish Charitable Fund 'Hesed Ariel'": 3178.0,
+            "Jewish Charitable Fund Hesed \"Osher\"": 17975.0,
+            "Jewish Cultural Charitable Foundation \"Gesher\"": 8944.0,
+            "Jewish Cultural Welfare Community \"Shalom\" - Sukhum": 3720.0,
+            "Jewish cultural welfare foundation 'Atikva'": 12846.0,
+            "Kharkiv Regional Charity Jewish Fund \"Hesed-Shaare Tikva'": 106337.43,
+            "Kherson Regional Jewish Welfare and Community Center 'Hesed Shmuel'": 25946.04,
+            "Kishinev Welfare Center Hesed Yehuda": 115594.0,
+            "Orot Hesed - Yerevan": 36378.0,
+            "Poltava Welfare and Community Center 'Hesed-Nefesh'": 33231.4,
+            "RENKASO": 2202.0,
+            "Regional public fund of jewish culture Shaarey Tzedek": 2396.0,
+            "Regional сharitable fund \"Hesed Tsdaka R\"": 25176.0,
+            "St. Petersburg (Hesed Avraham)": 20076.0,
+            "St.Petersburg Jewish Welfare Organization of Disabled - EVA": 22129.0,
+            "St.Petersburg Society Fund \"EVA - center\"": 4938.0,
+            "Sumy Welfare and Community Center 'Hesed-Haim'": 25168.0,
+            "Tiraspol Jewish Community Welfare Cultural Center 'Hesed'": 31782.0,
+            "Yad Ezra Fund": 15609.0,
+            "Yekaterinburg Jewish Community Center 'Menora'": 25716.0
+        };
+        
+        let calculations = {};
+        
+        function calculateAllocations() {
+            const totalBudget = parseFloat(document.getElementById('totalBudget').value);
+            const layer1Pct = parseFloat(document.getElementById('layer1Pct').value) / 100;
+            const layer2Pct = parseFloat(document.getElementById('layer2Pct').value) / 100;
+            const layer3Pct = parseFloat(document.getElementById('layer3Pct').value) / 100;
+            const bucket1Pct = parseFloat(document.getElementById('bucket1Pct').value) / 100;
+            const bucket2Pct = parseFloat(document.getElementById('bucket2Pct').value) / 100;
+            const bucket3Pct = parseFloat(document.getElementById('bucket3Pct').value) / 100;
+            const indirectCapPct = parseFloat(document.getElementById('indirectCapPct').value) / 100;
+            
+            // Calculate layers
+            const layer1Amount = totalBudget * layer1Pct;
+            const layer2Amount = totalBudget * layer2Pct;
+            const layer3Amount = totalBudget * layer3Pct;
+            
+            // Calculate buckets
+            const bucket1Total = layer3Amount * bucket1Pct;
+            const bucket2Total = layer3Amount * bucket2Pct;
+            const bucket3Total = layer3Amount * bucket3Pct;
+            
+            // Calculate Bucket 1: scaling factor
+            const scalingFactor = bucket1Total / BASELINE_BUCKET1_TOTAL;
+            const originalTargetPct = 2.5; // 250%
+            const impliedTargetPct = originalTargetPct * scalingFactor;
+            
+            // Show Bucket 1 alert
+            document.getElementById('targetLevelAlert').style.display = 'block';
+            document.getElementById('bucket1Amount').textContent = formatNumber(bucket1Total);
+            document.getElementById('scalingFactor').textContent = scalingFactor.toFixed(2);
+            document.getElementById('impliedTargetPct').textContent = (impliedTargetPct * 100).toFixed(0) + '%';
+            
+            // Calculate Bucket 2: Dynamic SPCA
+            const totalJewishPop = communityData.reduce((sum, h) => sum + h.jewishPop, 0);
+            const calculatedSPCA = bucket2Total / totalJewishPop;
+            
+            // Show Bucket 2 alert
+            document.getElementById('bucket2Alert').style.display = 'block';
+            document.getElementById('totalJewishPop').textContent = formatNumber(totalJewishPop);
+            document.getElementById('bucket2Amount').textContent = formatNumber(bucket2Total);
+            document.getElementById('calculatedSPCA').textContent = calculatedSPCA.toFixed(2);
+            
+            // Bucket 1 allocations (scaled)
+            const bucket1Allocations = bucket1NeedData.map(item => ({
+                ...item,
+                allocatedBudget: item.total_usd * scalingFactor
+            }));
+            
+            // Bucket 2 allocations using calculated SPCA
+            const bucket2Allocations = communityData.map(comm => {
+                const costIndex = cityCostIndex.find(c => c.city === comm.city);
+                if (!costIndex) {
+                    console.warn(`No cost index found for ${comm.city}`);
+                    return null;
+                }
+                
+                // Formula: Jewish Pop × SPCA × City Cost Index
+                const allocation = comm.jewishPop * calculatedSPCA * costIndex.cityCostIndex;
+                
+                return {
+                    ...comm,
+                    cityCostIndex: costIndex.cityCostIndex,
+                    allocatedBudget: allocation
+                };
+            }).filter(item => item !== null);
+            
+            // Create per-Hesed combined allocations
+            const hesedAllocations = [];
+            
+            // Calculate total Jewish population per city for splitting Bucket 1
+            const cityPopulations = {};
+            communityData.forEach(hesed => {
+                if (!cityPopulations[hesed.city]) {
+                    cityPopulations[hesed.city] = 0;
+                }
+                cityPopulations[hesed.city] += hesed.jewishPop;
+            });
+            
+            // Process each Hesed
+            communityData.forEach(hesed => {
+                // Split city's Bucket 1 among Heseds by population proportion
+                const bucket1Item = bucket1Allocations.find(b1 => b1.city === hesed.city);
+                let bucket1Alloc = 0;
+                if (bucket1Item && cityPopulations[hesed.city] > 0) {
+                    const proportion = hesed.jewishPop / cityPopulations[hesed.city];
+                    bucket1Alloc = bucket1Item.allocatedBudget * proportion;
+                }
+                
+                // Get Bucket 2 allocation
+                const bucket2Item = bucket2Allocations.find(b2 => 
+                    b2.city === hesed.city && b2.hesedName === hesed.hesedName
+                );
+                const bucket2Alloc = bucket2Item ? bucket2Item.allocatedBudget : 0;
+                
+                // Calculate totals
+                const proposedTotal = bucket1Alloc + bucket2Alloc;
+                const proposedIndirect = proposedTotal * indirectCapPct;
+                const proposedDirect = proposedTotal - proposedIndirect;
+                
+                // Get current values
+                const currentTotal = currentBudgetPerHesed[hesed.hesedName] || 0;
+                const currentIndirect = currentIndirectCosts[hesed.hesedName] || 0;
+                const currentDirect = currentTotal - currentIndirect;
+                
+                hesedAllocations.push({
+                    hesedName: hesed.hesedName,
+                    city: hesed.city,
+                    region: hesed.region,
+                    type: hesed.type,
+                    jewishPop: hesed.jewishPop,
+                    bucket1: bucket1Alloc,
+                    bucket2: bucket2Alloc,
+                    proposedTotal: proposedTotal,
+                    proposedDirect: proposedDirect,
+                    proposedIndirect: proposedIndirect,
+                    currentTotal: currentTotal,
+                    currentDirect: currentDirect,
+                    currentIndirect: currentIndirect,
+                    totalDifference: proposedTotal - currentTotal,
+                    directDifference: proposedDirect - currentDirect,
+                    indirectDifference: proposedIndirect - currentIndirect,
+                    percentChange: currentTotal > 0 ? ((proposedTotal - currentTotal) / currentTotal * 100) : 0
+                });
+            });
+            
+            calculations = {
+                totalBudget,
+                layer1Amount,
+                layer2Amount,
+                layer3Amount,
+                bucket1Total,
+                bucket2Total,
+                bucket3Total,
+                bucket1Allocations,
+                bucket2Allocations,
+                hesedAllocations,
+                scalingFactor,
+                impliedTargetPct,
+                calculatedSPCA,
+                totalJewishPop,
+                indirectCapPct
+            };
+            
+            displayResults();
+        }
+        
+        function displayResults() {
+            document.getElementById('results').style.display = 'block';
+            
+            // Summary Cards
+            const summaryHTML = `
+                <div class="summary-card">
+                    <h3>Total Budget</h3>
+                    <div class="value">$${formatNumber(calculations.totalBudget)}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Layer 3: Communities</h3>
+                    <div class="value">$${formatNumber(calculations.layer3Amount)}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Bucket 1: Safety-Net</h3>
+                    <div class="value">$${formatNumber(calculations.bucket1Total)}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Bucket 2: Community</h3>
+                    <div class="value">$${formatNumber(calculations.bucket2Total)}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Bucket 3: Strategic</h3>
+                    <div class="value">$${formatNumber(calculations.bucket3Total)}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>Calculated SPCA</h3>
+                    <div class="value">$${calculations.calculatedSPCA.toFixed(0)}</div>
+                    <div style="font-size: 0.8em; margin-top: 5px;">per person/year</div>
+                </div>
+            `;
+            document.getElementById('summaryCards').innerHTML = summaryHTML;
+            
+            // Layer Table
+            const layerHTML = `
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th class="number">Percentage</th>
+                        <th class="number">Amount (USD)</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Layer 1: JDC Admin</strong></td>
+                        <td class="number">${((calculations.layer1Amount / calculations.totalBudget) * 100).toFixed(1)}%</td>
+                        <td class="number">$${formatNumber(calculations.layer1Amount)}</td>
+                        <td>HQ management, compliance, oversight</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 2: Network Infrastructure</strong></td>
+                        <td class="number">${((calculations.layer2Amount / calculations.totalBudget) * 100).toFixed(1)}%</td>
+                        <td class="number">$${formatNumber(calculations.layer2Amount)}</td>
+                        <td>Capacity development, technology, partnerships</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 3: Community Allocations</strong></td>
+                        <td class="number">${((calculations.layer3Amount / calculations.totalBudget) * 100).toFixed(1)}%</td>
+                        <td class="number">$${formatNumber(calculations.layer3Amount)}</td>
+                        <td>Direct funding to Heseds</td>
+                    </tr>
+                </tbody>
+            `;
+            document.getElementById('layerTable').innerHTML = layerHTML;
+            
+            // Bucket Table
+            const bucketHTML = `
+                <thead>
+                    <tr>
+                        <th>Bucket</th>
+                        <th class="number">% of Layer 3</th>
+                        <th class="number">Amount (USD)</th>
+                        <th>Allocation Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Bucket 1: Safety-Net</strong></td>
+                        <td class="number">${((calculations.bucket1Total / calculations.layer3Amount) * 100).toFixed(1)}%</td>
+                        <td class="number">$${formatNumber(calculations.bucket1Total)}</td>
+                        <td>Vulnerability + Pensioner Support (scaled)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bucket 2: Community & Prevention</strong></td>
+                        <td class="number">${((calculations.bucket2Total / calculations.layer3Amount) * 100).toFixed(1)}%</td>
+                        <td class="number">$${formatNumber(calculations.bucket2Total)}</td>
+                        <td>Pop × SPCA ($${calculations.calculatedSPCA.toFixed(0)}) × Cost Index</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bucket 3: Strategic Fund</strong></td>
+                        <td class="number">${((calculations.bucket3Total / calculations.layer3Amount) * 100).toFixed(1)}%</td>
+                        <td class="number">$${formatNumber(calculations.bucket3Total)}</td>
+                        <td>Competitive/Application-Based</td>
+                    </tr>
+                </tbody>
+            `;
+            document.getElementById('bucketTable').innerHTML = bucketHTML;
+            
+            // Bucket 1 Details per Hesed
+            let bucket1HTML = `
+                <thead>
+                    <tr>
+                        <th>Hesed Name</th>
+                        <th>City</th>
+                        <th>Region</th>
+                        <th>Type</th>
+                        <th class="number">Jewish Pop</th>
+                        <th class="number">Allocated Budget</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            const bucket1PerHesed = calculations.hesedAllocations
+                .map(h => ({
+                    hesedName: h.hesedName,
+                    city: h.city,
+                    region: h.region,
+                    type: h.type,
+                    jewishPop: h.jewishPop,
+                    bucket1: h.bucket1
+                }))
+                .sort((a, b) => b.bucket1 - a.bucket1);
+            
+            bucket1PerHesed.forEach(item => {
+                bucket1HTML += `
+                    <tr>
+                        <td style="font-size: 0.85em;"><strong>${item.hesedName}</strong></td>
+                        <td>${item.city}</td>
+                        <td>${item.region}</td>
+                        <td><span class="model-badge model-${item.type.toLowerCase()}">${item.type}</span></td>
+                        <td class="number">${formatNumber(item.jewishPop)}</td>
+                        <td class="number"><strong>$${formatNumber(item.bucket1)}</strong></td>
+                    </tr>
+                `;
+            });
+            
+            bucket1HTML += '</tbody>';
+            document.getElementById('bucket1Table').innerHTML = bucket1HTML;
+            
+            // Bucket 2 Details per Hesed
+            let bucket2HTML = `
+                <thead>
+                    <tr>
+                        <th>Hesed Name</th>
+                        <th>City</th>
+                        <th>Type</th>
+                        <th class="number">Jewish Pop</th>
+                        <th class="number">Cost Index</th>
+                        <th class="number">Allocated Budget</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            calculations.bucket2Allocations
+                .sort((a, b) => b.allocatedBudget - a.allocatedBudget)
+                .forEach(item => {
+                    bucket2HTML += `
+                        <tr>
+                            <td style="font-size: 0.85em;">${item.hesedName}</td>
+                            <td>${item.city}</td>
+                            <td><span class="model-badge model-${item.type.toLowerCase()}">${item.type}</span></td>
+                            <td class="number">${formatNumber(item.jewishPop)}</td>
+                            <td class="number">${item.cityCostIndex.toFixed(4)}</td>
+                            <td class="number">$${formatNumber(item.allocatedBudget)}</td>
+                        </tr>
+                    `;
+                });
+            
+            bucket2HTML += '</tbody>';
+            document.getElementById('bucket2Table').innerHTML = bucket2HTML;
+            
+            // Per-Hesed Comparison Table
+            let comparisonHTML = `
+                <thead>
+                    <tr>
+                        <th>Hesed Name</th>
+                        <th>Type</th>
+                        <th class="number">Jewish Pop</th>
+                        <th class="number">Current Total</th>
+                        <th class="number">Current Indirect</th>
+                        <th class="number">Proposed Total</th>
+                        <th class="number">Proposed Indirect (${(calculations.indirectCapPct * 100).toFixed(0)}%)</th>
+                        <th class="number">Total Δ</th>
+                        <th class="number">% Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            calculations.hesedAllocations
+                .sort((a, b) => Math.abs(b.totalDifference) - Math.abs(a.totalDifference))
+                .forEach(item => {
+                    const diffClass = item.totalDifference >= 0 ? 'positive' : 'negative';
+                    comparisonHTML += `
+                        <tr>
+                            <td style="font-size: 0.85em;"><strong>${item.hesedName}</strong></td>
+                            <td><span class="model-badge model-${item.type.toLowerCase()}">${item.type}</span></td>
+                            <td class="number">${formatNumber(item.jewishPop)}</td>
+                            <td class="number">$${formatNumber(item.currentTotal)}</td>
+                            <td class="number">$${formatNumber(item.currentIndirect)}</td>
+                            <td class="number"><strong>$${formatNumber(item.proposedTotal)}</strong></td>
+                            <td class="number">$${formatNumber(item.proposedIndirect)}</td>
+                            <td class="number ${diffClass}"><strong>$${formatNumber(item.totalDifference)}</strong></td>
+                            <td class="number ${diffClass}">${item.percentChange.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                });
+            
+            comparisonHTML += '</tbody>';
+            document.getElementById('comparisonTable').innerHTML = comparisonHTML;
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+        
+        function exportToCSV() {
+            let csv = 'Hesed Name,City,Region,Type,Jewish Population,Current Total,Current Indirect,Proposed Total,Proposed Indirect,Total Difference,Percent Change\n';
+            
+            calculations.hesedAllocations.forEach(item => {
+                csv += `"${item.hesedName}","${item.city}","${item.region}","${item.type}",${item.jewishPop},${item.currentTotal.toFixed(2)},${item.currentIndirect.toFixed(2)},${item.proposedTotal.toFixed(2)},${item.proposedIndirect.toFixed(2)},${item.totalDifference.toFixed(2)},${item.percentChange.toFixed(2)}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'budget_allocation_per_hesed.csv';
+            a.click();
+        }
+        
+        function printReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
